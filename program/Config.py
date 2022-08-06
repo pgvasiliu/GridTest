@@ -32,7 +32,7 @@ _ = os.path.abspath(os.path.dirname(__file__))  # 返回当前文件路径
 root_path = os.path.abspath(os.path.join(_, '../'))  # 返回根目录文件夹
 
 # 永续合约历史1分钟数据，下载链接：https://www.quantclass.cn/data/coin/coin-binance-swap-candle-csv
-candle_path = 'D:/Data/Coin/swap_candle_1m/'
+candle_path = '/Users/yanjichao/develop/quant/history_candle_data/binance/swap/swap_1m_pkl/'
 file_type = 'pkl'
 
 # 合约的最小下单量
