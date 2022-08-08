@@ -160,6 +160,8 @@ def trans_period_for_grid(data, period, exg_dict=None):
         'low': 'min',
         'close': 'last',
         'symbol': 'last',
+        'volume': 'sum',
+        'quote_volume': 'sum'
     }
     if exg_dict:
         agg_dict = dict(agg_dict, **exg_dict)
@@ -244,3 +246,11 @@ def strategy_evaluate(pos_data, date='交易日期', nv_col='net_value'):
         [len(list(v)) for k, v in itertools.groupby(np.where(temp['当周期涨跌幅'] <= 0, 1, np.nan))])  # 最大连续亏损次数
 
     return results.T
+
+
+def check_contain_chinese(check_str):
+    for ch in check_str:
+        if u'\u4e00' <= ch <= u'\u9fff':
+            return True
+        else:
+            return False

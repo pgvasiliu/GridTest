@@ -4,6 +4,8 @@ author: 邢不行
 微信: xbx719
 """
 from program.Config import *
+from factors.index import allFactors
+from program.Function import *
 
 
 def cal_factor(df):
@@ -16,15 +18,29 @@ def cal_factor(df):
     df['涨跌幅'] = df['close'].pct_change()
     df['涨跌幅'].fillna(value=df['close'] / df['open'] - 1, inplace=True)
 
+    df['振幅'] = (df['high'] - df['low']) / df['open']
+
     # 判断币种是上涨还是下跌
     df[['上涨', '下跌']] = 0
     df.loc[df['涨跌幅'] > 0, '上涨'] = 1
     df.loc[df['涨跌幅'] <= 0, '下跌'] = 1
-
-    # 根据指定的参数计算一些技术指标
-    for n in [2, 3, 5, 8, 13]:
-        df['ma_%s' % n] = df['close'].rolling(n).mean()
-        df['bias_%s' % n] = df['close'] / df['ma_%s' % n] - 1
+    #
+    # # 根据指定的参数计算一些技术指标
+    # for n in [2, 3, 5, 8, 13]:
+    #     df['ma_%s' % n] = df['close'].rolling(n).mean()
+    #     df['bias_%s' % n] = df['close'] / df['ma_%s' % n] - 1
+    for n in [2]:
+        for factor in factors:
+            if check_contain_chinese(factor):
+                print('中文')
+            else:
+                _symbol = factor[:-2]
+                allFactors[_symbol](df, n, 0, _symbol + '_%s' % n)
+                print('计算因子-', _symbol + '_%s' % n)
+    # 判断价格是否在DC通道内
+    df['dc_dn'] = df['low'].rolling(20, min_periods=1).min()
+    df['dc'] = 0
+    df.loc[df['close'] > df['dc_dn'], 'dc'] = 1
 
     return df
 
@@ -50,6 +66,9 @@ def select_grid_coin(data, factor_info):
     """
     # 删除选币因子为空的数据
     data.dropna(subset=list(factor_info.keys()), inplace=True)
+    # DC择时：收盘价在通道内
+    con3 = data['dc'] == 1
+    data = data[con3]
 
     # 排序
     rank_col = []
@@ -64,9 +83,9 @@ def select_grid_coin(data, factor_info):
     data = data[data['rank'] <= 1]  # 只选择一个币
 
     # （大盘择时）筛选条件：10%<上涨比例<90%
-    con1 = data['上涨比例'] > 0.1
-    con2 = data['上涨比例'] < 0.9
-    data = data[con1 & con2]
+    # con1 = data['上涨比例'] > 0.1
+    # con2 = data['上涨比例'] < 0.9
+    # data = data[con1 & con2]
     data.sort_values(by='time', inplace=True)
 
     return data

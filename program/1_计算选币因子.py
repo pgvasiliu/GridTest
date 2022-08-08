@@ -31,10 +31,10 @@ def select_grid_coin(bench, symbol):
     if df.empty:
         return pd.DataFrame()
 
-    exg_dict = {'Spread': 'last'}
+    # exg_dict = {'Spread': 'last'}
+    exg_dict = {}
     # 将分钟数据转为日线数据
     df = trans_period_for_grid(df, period, exg_dict=exg_dict)
-
     # 计算选币因子
     df = cal_factor(df)
 
